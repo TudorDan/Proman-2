@@ -1,0 +1,74 @@
+<html>
+<head>
+
+</head>
+<body>
+
+    <div id="content">
+
+    </div>
+
+    <button id="next" > Show Next</button>
+
+    <!--
+
+        1. Javascript Hoisting
+        2. var, let const
+        3. JSON
+
+        variabile <- data_manager
+        variabile/parametri <- fetch
+
+        xhttp - JS requesturi
+        new XMLHttpRequest
+        jquery -> library -> 
+        fetch GET -> apelezi ruta -> json
+        fetch POST -> send
+
+
+        SELECT< INSERT< UPDATE< DELETE -> x 2
+        SELECT + JOIN
+
+        ORDER BY , LIMIT 
+        + create table
+            - denumire
+            - coloane (tip date)
+
+
+        # DOM ( write, delete )
+        # event listener
+        # functii 
+        # fetch (GET)
+        # structuri de date Array/Json
+
+    --> 
+    
+
+<script>
+
+    const lista = ["first", "second", "third", "fourth"];
+    const button = document.getElementById("next");
+    contor = 0;
+
+    button.addEventListener("click", showElement);
+
+    function showElement() {
+
+        //paranoia
+        if (contor >= lista.length) {
+
+            return;
+
+        }
+
+        current_element = lista[contor];
+
+        content = document.getElementById("content");
+        content.innerHTML = current_element;
+        contor++;
+    }
+
+</script>
+
+</body>
+</html>
