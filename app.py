@@ -41,6 +41,16 @@ def update_board():
     return jsonify({'success': True})
 
 
+# receives json (id, title)
+# returns json
+@app.route('/api/update-status', methods=["POST"])
+def update_status():
+    request_content = request.json
+    data = {'id': request_content['id'], 'title': request_content['title']}
+    boards_manager.update_status(data)
+    return jsonify({'success': True})
+
+
 @app.route('/api/getdata')
 def get_data():
     data = [

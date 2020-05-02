@@ -71,8 +71,9 @@ async function showStatuses(statuses) {
     for (let status of statuses) {
         let board = document.querySelector(`#board-${status.board_id}`);
         let statusTemplate = `
-        <div class="col-3 float-left" id="status-${status.id}">
-            <h5>${status.title}</h5>
+        <div class="col-3 float-left border border-secondary">
+            <h5 id="status-${status.id}" contenteditable="true" 
+            onfocusout="updateStatusTitle(${status.id})">${status.title}</h5>
         </div>`;
         board.innerHTML += statusTemplate;
     }
@@ -83,7 +84,8 @@ async function showTasks(tasks) {
         let status = document.querySelector(`#status-${task.status_id}`);
         let taskTemplate = `
         <div id="task-${task.id}">
-            <h5>${task.title}</h5>
+            <h5 class="border border-secondary" contenteditable="true" 
+            onfocusout="updateTaskTitle(${task.id})">${task.title}</h5>
         </div>`;
         status.innerHTML += taskTemplate;
     }
@@ -116,7 +118,61 @@ function updateBoardTitle(boardId) {
     // })
 }
 
-async function createBoard() {
+function updateStatusTitle(statusId) {
+    elementToSelect = "status-" + statusId;
+    titleValue = document.getElementById(elementToSelect);
+
+    data = {
+        'id': statusId,
+        'title': titleValue.innerText,
+    }
+
+    settings = {
+        'method': 'POST',
+        'headers': {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify(data),
+    }
+
+    fetch('/api/update-status', settings)
+        .then((serverResponse) => {
+            return serverResponse.json();
+        })
+    // .then((jsonResponse) => {
+    //     console.log(jsonResponse);
+    // })
+}
+
+function updateTaskTitle(taskId) {
+    elementToSelect = "board-title-" + boardId;
+    titleValue = document.getElementById(elementToSelect);
+
+    data = {
+        'id': boardId,
+        'title': titleValue.innerText,
+    }
+
+    settings = {
+        'method': 'POST',
+        'headers': {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify(data),
+    }
+
+    fetch('/api/update-board', settings)
+        .then((serverResponse) => {
+            return serverResponse.json();
+        })
+    // .then((jsonResponse) => {
+    //     console.log(jsonResponse);
+    // })
+}
+
+async function createNewBoard() {
     const labelModal = document.querySelector('#label-modal');
     labelModal.innerText = 'Board title:';
     $('#template-modal').modal('show');
@@ -153,7 +209,7 @@ async function init() {
     await getTasks();
 
     const createButton = document.querySelector('#create-board');
-    await createButton.addEventListener('click', createBoard);
+    await createButton.addEventListener('click', createNewBoard);
 }
 
 init();
