@@ -59,8 +59,19 @@ async function showBoards(boards) {
         let board_template = `
         <div class="card mb-2">
             <div class="card-body" id="board-${board.id}">
-                <h5 class="card-title" id="board-title-${board.id}" contenteditable="true" 
-                onfocusout="updateBoardTitle(${board.id})">${board.title}</h5>
+                <div class="row mb-2">
+                    <h5 class="card-title ml-4" id="board-title-${board.id}" contenteditable="true" 
+                    onfocusout="updateBoardTitle(${board.id})">${board.title}</h5>
+                    <a href="" class="btn btn-outline-info mx-auto" id="create-board" data-toggle="modal"
+                       data-target="#template-modal">
+                       <i class="fas fa-plus"></i>
+                       New status
+                    </a>
+                    <a class="mr-4" data-toggle="collapse" href="#collapse-board-${board.id}" role="button" 
+                    aria-expanded="false" aria-controls="collapse-board">
+                        <i class="far fa-caret-square-down fa-2x"></i>
+                    </a>
+                </div>
             </div>
         </div>`;
         boards_container.innerHTML += board_template;
@@ -71,9 +82,11 @@ async function showStatuses(statuses) {
     for (let status of statuses) {
         let board = document.querySelector(`#board-${status.board_id}`);
         let statusTemplate = `
-        <div class="col-3 float-left border border-secondary" id="status-${status.id}">
-            <h5 id="status-title-${status.id}" contenteditable="true" 
-            onfocusout="updateStatusTitle(${status.id})">${status.title}</h5>
+        <div class="collapse" id="collapse-board-${status.board_id}">
+            <div class="col-3 float-left border border-secondary" id="status-${status.id}">
+                <h5 id="status-title-${status.id}" contenteditable="true" 
+                onfocusout="updateStatusTitle(${status.id})">${status.title}</h5>
+            </div>
         </div>`;
         board.innerHTML += statusTemplate;
     }
