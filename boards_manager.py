@@ -95,7 +95,7 @@ def update_task(cursor, data):
         UPDATE tasks SET title = %(title)s WHERE id = %(id)s;
     """
     return cursor.execute(query, {
-        'id': data['card_id'],
+        'id': data['id'],
         'title': data['title']
     })
 

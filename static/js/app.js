@@ -71,8 +71,8 @@ async function showStatuses(statuses) {
     for (let status of statuses) {
         let board = document.querySelector(`#board-${status.board_id}`);
         let statusTemplate = `
-        <div class="col-3 float-left border border-secondary">
-            <h5 id="status-${status.id}" contenteditable="true" 
+        <div class="col-3 float-left border border-secondary" id="status-${status.id}">
+            <h5 id="status-title-${status.id}" contenteditable="true" 
             onfocusout="updateStatusTitle(${status.id})">${status.title}</h5>
         </div>`;
         board.innerHTML += statusTemplate;
@@ -84,7 +84,7 @@ async function showTasks(tasks) {
         let status = document.querySelector(`#status-${task.status_id}`);
         let taskTemplate = `
         <div id="task-${task.id}">
-            <h5 class="border border-secondary" contenteditable="true" 
+            <h5 id="task-title-${task.id}" class="border border-secondary" contenteditable="true" 
             onfocusout="updateTaskTitle(${task.id})">${task.title}</h5>
         </div>`;
         status.innerHTML += taskTemplate;
@@ -119,7 +119,7 @@ function updateBoardTitle(boardId) {
 }
 
 function updateStatusTitle(statusId) {
-    elementToSelect = "status-" + statusId;
+    elementToSelect = "status-title-" + statusId;
     titleValue = document.getElementById(elementToSelect);
 
     data = {
@@ -146,11 +146,11 @@ function updateStatusTitle(statusId) {
 }
 
 function updateTaskTitle(taskId) {
-    elementToSelect = "board-title-" + boardId;
+    elementToSelect = "task-title-" + taskId;
     titleValue = document.getElementById(elementToSelect);
 
     data = {
-        'id': boardId,
+        'id': taskId,
         'title': titleValue.innerText,
     }
 
@@ -163,7 +163,7 @@ function updateTaskTitle(taskId) {
         body: JSON.stringify(data),
     }
 
-    fetch('/api/update-board', settings)
+    fetch('/api/update-task', settings)
         .then((serverResponse) => {
             return serverResponse.json();
         })

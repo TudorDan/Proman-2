@@ -51,6 +51,16 @@ def update_status():
     return jsonify({'success': True})
 
 
+# receives (card_id, title)
+# return json
+@app.route('/api/update-task', methods=["POST"])
+def update_task():
+    request_content = request.json
+    data = {'id': request_content['id'], 'title': request_content['title']}
+    boards_manager.update_task(data)
+    return jsonify({'success': True})
+
+
 @app.route('/api/getdata')
 def get_data():
     data = [
@@ -60,16 +70,6 @@ def get_data():
     ]
 
     return jsonify(data)
-
-
-# receives (card_id, title)
-# return json
-@app.route('/api/update-card', methods=["POST"])
-def update_card():
-    request_content = request.json
-    data = {'card_id': request_content['id'], 'title': request_content['title']}
-    boards_manager.update_card(data)
-    return jsonify({'success': True})
 
 
 # receives (title)
