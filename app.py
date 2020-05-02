@@ -17,6 +17,20 @@ def get_boards():
     return jsonify(boards)
 
 
+# returns json object
+@app.route('/api/get-statuses')
+def get_statuses():
+    statuses = boards_manager.get_statuses()
+    return jsonify(statuses)
+
+
+# returns json object
+@app.route('/api/get-tasks')
+def get_tasks():
+    tasks = boards_manager.get_tasks()
+    return jsonify(tasks)
+
+
 # receives json (id, title)
 # returns json
 @app.route('/api/update-board', methods=["POST"])
@@ -38,12 +52,6 @@ def get_data():
     return jsonify(data)
 
 
-# returns json object
-@app.route('/api/get-cards/<board_id>')
-def get_cards(board_id):
-    return jsonify(boards_manager.get_cards(board_id))
-
-
 # receives (card_id, title)
 # return json
 @app.route('/api/update-card', methods=["POST"])
@@ -56,7 +64,7 @@ def update_card():
 
 # receives (title)
 # returns json
-@app.route('/api/create-board')
+@app.route('/api/create-board', methods=["POST"])
 def create_board():
     request_content = request.json
     title = request_content['title']
@@ -76,12 +84,6 @@ def create_card():
     }
     boards_manager.create_card(data)
     return jsonify({'success': True})
-
-
-# returns json object
-@app.route('/api/get-statuses')
-def get_statuses():
-    return jsonify(boards_manager.get_statuses())
 
 
 # receives (id)
@@ -104,6 +106,5 @@ def delete_card():
 
 if __name__ == "__main__":
     app.run(
-        debug=True,
-        host='0.0.0.0'
+        debug=True
     )

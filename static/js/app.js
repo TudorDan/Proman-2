@@ -1,39 +1,91 @@
 url_api = 'http://127.0.0.1:5000/api/';
 url_boards = url_api + "get-boards";
-url_cards = url_api + "get-cards/";
+url_statuses = url_api + "get-statuses";
+url_tasks = url_api + "get-tasks";
+url_add_new_board = url_api + "create-board";
 
-function getBoards() {
-    fetch(url_boards)
-    .then((serverResponse)=>{
-        return serverResponse.json();
-    })
-    .then((jsonResponse)=>{
-        showBoards(jsonResponse);
-    });
+async function getBoards() {
+    let serverResponse = await fetch(url_boards);
+    let jsonResponse = await serverResponse.json();
+    await showBoards(jsonResponse);
+    // fetch(url_boards)
+    //     .then((serverResponse) => {
+    //         return serverResponse.json();
+    //     })
+    //     .then((jsonResponse) => {
+    //         console.log('1');
+    //         showBoards(jsonResponse);
+    //     });
 }
 
-
-function getCardsForBoard(id) {
-    //fetch
-    fetch(url_cards + id)
-        .then((serverResponse)=>{
-            return serverResponse.json();
-        })
-        .then((jsonResponse)=>{
-            console.table(jsonResponse);
-        });
+async function getStatuses() {
+    let serverResponse = await fetch(url_statuses);
+    let jsonResponse = await serverResponse.json();
+    await showStatuses(jsonResponse);
+    // fetch(url_statuses)
+    //     .then((serverResponse) => {
+    //         return serverResponse.json();
+    //     })
+    //     .then((jsonResponse) => {
+    //         console.log('2');
+    //         showStatuses(jsonResponse);
+    //     });
 }
 
-function showBoards(boards) {
-    for (board of boards){
-        boards_container = document.getElementById('boards-container');
-        card_template = `<div class="card float-left mb-2" style="width:120px;">
-        <div class="card-body">
-        <h5 class="card-title" id="board-title-`+board.id+`" contenteditable="true" onfocusout="updateBoardTitle(` + board.id + `)">` + board.title + `</h5>
-        <a href="#" class="btn btn-primary" onClick="getCardsForBoard(` + board.id + `)">Show Cards</a>
-        </div>
-        </div>`
-        boards_container.innerHTML += card_template;
+async function getTasks() {
+    let serverResponse = await fetch(url_tasks);
+    let jsonResponse = await serverResponse.json();
+    await showTasks(jsonResponse);
+    // fetch(url_tasks)
+    //     .then((serverResponse) => {
+    //         return serverResponse.json();
+    //     })
+    //     .then((jsonResponse) => {
+    //         console.log('3');
+    //         showTasks(jsonResponse);
+    //     });
+}
+
+async function showBoards(boards) {
+    for (let board of boards) {
+        let boards_container = document.getElementById('boards-container');
+        // card_template = `<div class="card float-left mb-2" style="width:120px;">
+        // <div class="card-body">
+        // <h5 class="card-title" id="board-title-`+board.id+`" contenteditable="true"
+        // onfocusout="updateBoardTitle(` + board.id + `)">` + board.title + `</h5>
+        // <a href="#" class="btn btn-primary" onClick="getCardsForBoard(` + board.id + `)">Show Cards</a>
+        // </div>
+        // </div>`
+        let board_template = `
+        <div class="card mb-2">
+            <div class="card-body" id="board-${board.id}">
+                <h5 class="card-title" id="board-title-${board.id}" contenteditable="true" 
+                onfocusout="updateBoardTitle(${board.id})">${board.title}</h5>
+            </div>
+        </div>`;
+        boards_container.innerHTML += board_template;
+    }
+}
+
+async function showStatuses(statuses) {
+    for (let status of statuses) {
+        let board = document.querySelector(`#board-${status.board_id}`);
+        let statusTemplate = `
+        <div class="col-3 float-left" id="status-${status.id}">
+            <h5>${status.title}</h5>
+        </div>`;
+        board.innerHTML += statusTemplate;
+    }
+}
+
+async function showTasks(tasks) {
+    for (let task of tasks) {
+        let status = document.querySelector(`#status-${task.status_id}`);
+        let taskTemplate = `
+        <div id="task-${task.id}">
+            <h5>${task.title}</h5>
+        </div>`;
+        status.innerHTML += taskTemplate;
     }
 }
 
@@ -49,20 +101,59 @@ function updateBoardTitle(boardId) {
     settings = {
         'method': 'POST',
         'headers': {
-            'Content-Type' : 'application/json',
-            'Accept' : 'application/json'
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
         },
         body: JSON.stringify(data),
     }
 
-    fetch('/api/update-board',settings)
-        .then((serverResponse)=>{
+    fetch('/api/update-board', settings)
+        .then((serverResponse) => {
             return serverResponse.json();
         })
-        .then((jsonResponse)=>{
-            console.log(jsonResponse);
-        })
+    // .then((jsonResponse) => {
+    //     console.log(jsonResponse);
+    // })
 }
 
+async function createBoard() {
+    const labelModal = document.querySelector('#label-modal');
+    labelModal.innerText = 'Board title:';
+    $('#template-modal').modal('show');
+    const modalButon = document.querySelector('#modal-button');
+    modalButon.addEventListener('click', processNewBoard);
+}
 
-getBoards();
+async function processNewBoard(event) {
+    let boardTitle = document.querySelector('[name="modal-data"]').value;
+    if (boardTitle) {
+        let dataToBePosted = {title: boardTitle}
+        let serverResponse = await fetch(url_add_new_board, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(dataToBePosted)
+        });
+        let jsonResponse = await serverResponse.json();
+        console.log(jsonResponse['success']);
+    } else {
+        let warn = document.querySelector('div.alert.alert-danger');
+        warn.style.display = 'block';
+        setTimeout(() => {
+            warn.style.display = 'none';
+        }, 1500);
+    }
+}
+
+async function init() {
+    await getBoards();
+    await getStatuses();
+    await getTasks();
+
+    const createButton = document.querySelector('#create-board');
+    await createButton.addEventListener('click', createBoard);
+}
+
+init();

@@ -10,3 +10,9 @@ add your connection data to db.py
 reinstall venv if it is not working
 
 pip: psycopg2, flask
+
+My Tables
+users (id, name, password)
+boards (id, title, user_id)
+statuses (id, title, board_id, position)
+tasks (id, title, status_id, rank)
