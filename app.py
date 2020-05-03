@@ -84,6 +84,19 @@ def create_status():
     return jsonify({'success': True})
 
 
+# receives (board_id, title)
+# returns json
+@app.route('/api/create-task', methods=['POST'])
+def create_task():
+    request_content = request.json
+    data = {
+        'title': request_content['title'],
+        'board_id': request_content['board_id']
+    }
+    temp = boards_manager.create_task(data)
+    return jsonify({'success': True})
+
+
 @app.route('/api/getdata')
 def get_data():
     data = [

@@ -65,8 +65,7 @@ def create_status(cursor, data):
     cursor.execute(query, {
         'board_id': data['board_id']
     })
-    position = cursor.fetchone()['position']
-    position += 100
+    position = cursor.fetchone()['position'] + 100
 
     query = """
         INSERT INTO statuses (title, position, board_id) VALUES (%(title)s, %(position)s, %(board_id)s);
@@ -75,6 +74,40 @@ def create_status(cursor, data):
         'title': data['title'],
         'position': position,
         'board_id': data['board_id']
+    })
+
+
+@db.use
+def create_task(cursor, data):
+    # get the first status position
+    query = """
+            SELECT * FROM statuses WHERE board_id = %(board_id)s ORDER BY position;
+        """
+    cursor.execute(query, {
+        'board_id': data['board_id']
+    })
+    status_id = cursor.fetchone()['id']
+
+    # get the last rank for the tasks from the status_id
+    query = """
+                SELECT * FROM tasks WHERE status_id = %(status_id)s ORDER BY rank DESC;
+            """
+    cursor.execute(query, {
+        'status_id': status_id
+    })
+    temp = cursor.fetchone()
+    if temp is None:
+        rank = 100
+    else:
+        rank = temp['rank'] + 100
+
+    query = """
+        INSERT INTO tasks (title, rank, status_id) VALUES (%(title)s, %(rank)s, %(status_id)s);
+    """
+    return cursor.execute(query, {
+        'title': data['title'],
+        'rank': rank,
+        'status_id': status_id
     })
 
 

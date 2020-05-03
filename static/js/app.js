@@ -2,8 +2,9 @@ url_api = 'http://127.0.0.1:5000/api/';
 url_boards = url_api + "get-boards";
 url_statuses = url_api + "get-statuses";
 url_tasks = url_api + "get-tasks";
-url_add_new_board = url_api + "create-board";
-url_add_new_status = url_api + "create-status";
+url_create_board = url_api + "create-board";
+url_create_status = url_api + "create-status";
+url_create_task = url_api + "create-task";
 
 async function getBoards() {
     let serverResponse = await fetch(url_boards);
@@ -61,14 +62,19 @@ async function showBoards(boards) {
         <div class="card mb-2">
             <div class="card-body" id="board-${board.id}">
                 <div class="row mb-2">
-                    <h5 class="card-title col-2" id="board-title-${board.id}" contenteditable="true" 
+                    <h5 class="card-title float-left" id="board-title-${board.id}" contenteditable="true" 
                     onfocusout="updateBoardTitle(${board.id})">${board.title}</h5>
-                    <a href="" class="btn btn-outline-info mx-auto create-status" data-board-id="${board.id}"
+                    <a href="" class="btn btn-info mx-auto create-status" data-board-id="${board.id}"
                         data-toggle="modal" data-target="#template-modal">
-                       <i class="fas fa-plus"></i>
+                       <i class="fas fa-plus-circle"></i>
                        New status
                     </a>
-                    <a class="mr-4" data-toggle="collapse" href="#collapse-board-${board.id}" role="button" 
+                    <a href="" class="btn btn-secondary mx-auto create-task" data-board-id="${board.id}"
+                        data-toggle="modal" data-target="#template-modal">
+                       <i class="fas fa-plus-circle"></i>
+                       New task
+                    </a>
+                    <a class="float-right" data-toggle="collapse" href="#collapse-board-${board.id}" role="button" 
                     aria-expanded="false" aria-controls="collapse-board">
                         <i class="far fa-caret-square-down fa-2x"></i>
                     </a>
@@ -198,7 +204,7 @@ async function processNewBoard(event) {
     let boardTitle = document.querySelector('[name="modal-data"]').value;
     if (boardTitle) {
         let dataToBePosted = {title: boardTitle};
-        let serverResponse = await fetch(url_add_new_board, {
+        let serverResponse = await fetch(url_create_board, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -229,14 +235,52 @@ async function createNewStatus(event) {
 }
 
 async function processNewStatus(event) {
-    let boardTitle = document.querySelector('[name="modal-data"]').value;
+    let statusTitle = document.querySelector('[name="modal-data"]').value;
     const boardId = event.target.boardId;
-    if (boardTitle) {
+    if (statusTitle) {
         let dataToBePosted = {
-            title: boardTitle,
+            title: statusTitle,
             board_id: boardId
         };
-        let serverResponse = await fetch(url_add_new_status, {
+        let serverResponse = await fetch(url_create_status, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(dataToBePosted)
+        });
+        let jsonResponse = await serverResponse.json();
+        console.log(jsonResponse['success']);
+    } else {
+        let warn = document.querySelector('div.alert.alert-danger');
+        warn.style.display = 'block';
+        setTimeout(() => {
+            warn.style.display = 'none';
+        }, 2000);
+    }
+}
+
+async function createNewTask() {
+    const labelModal = document.querySelector('#label-modal');
+    labelModal.innerText = 'Task title:';
+
+    $('#template-modal').modal('show');
+
+    const modalButton = document.querySelector('#modal-button');
+    modalButton.boardId = this.dataset.boardId;
+    await modalButton.addEventListener('click', processNewTask);
+}
+
+async function processNewTask() {
+    let taskTitle = document.querySelector('[name="modal-data"]').value;
+    const boardId = event.target.boardId;
+    if (taskTitle) {
+        let dataToBePosted = {
+            title: taskTitle,
+            board_id: boardId
+        };
+        let serverResponse = await fetch(url_create_task, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -266,6 +310,11 @@ async function init() {
     const createStatusButtons = document.querySelectorAll('.create-status');
     for (let button of createStatusButtons) {
         await button.addEventListener('click', createNewStatus);
+    }
+
+    const createTaskButtons = document.querySelectorAll('.create-task');
+    for (let button of createTaskButtons) {
+        await button.addEventListener('click', createNewTask);
     }
 }
 
