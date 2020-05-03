@@ -3,6 +3,7 @@ url_boards = url_api + "get-boards";
 url_statuses = url_api + "get-statuses";
 url_tasks = url_api + "get-tasks";
 url_add_new_board = url_api + "create-board";
+url_add_new_status = url_api + "create-status";
 
 async function getBoards() {
     let serverResponse = await fetch(url_boards);
@@ -60,10 +61,10 @@ async function showBoards(boards) {
         <div class="card mb-2">
             <div class="card-body" id="board-${board.id}">
                 <div class="row mb-2">
-                    <h5 class="card-title ml-4" id="board-title-${board.id}" contenteditable="true" 
+                    <h5 class="card-title col-2" id="board-title-${board.id}" contenteditable="true" 
                     onfocusout="updateBoardTitle(${board.id})">${board.title}</h5>
-                    <a href="" class="btn btn-outline-info mx-auto" id="create-board" data-toggle="modal"
-                       data-target="#template-modal">
+                    <a href="" class="btn btn-outline-info mx-auto create-status" data-board-id="${board.id}"
+                        data-toggle="modal" data-target="#template-modal">
                        <i class="fas fa-plus"></i>
                        New status
                     </a>
@@ -189,14 +190,14 @@ async function createNewBoard() {
     const labelModal = document.querySelector('#label-modal');
     labelModal.innerText = 'Board title:';
     $('#template-modal').modal('show');
-    const modalButon = document.querySelector('#modal-button');
-    modalButon.addEventListener('click', processNewBoard);
+    const modalButton = document.querySelector('#modal-button');
+    await modalButton.addEventListener('click', processNewBoard);
 }
 
 async function processNewBoard(event) {
     let boardTitle = document.querySelector('[name="modal-data"]').value;
     if (boardTitle) {
-        let dataToBePosted = {title: boardTitle}
+        let dataToBePosted = {title: boardTitle};
         let serverResponse = await fetch(url_add_new_board, {
             method: 'POST',
             headers: {
@@ -212,7 +213,45 @@ async function processNewBoard(event) {
         warn.style.display = 'block';
         setTimeout(() => {
             warn.style.display = 'none';
-        }, 1500);
+        }, 2000);
+    }
+}
+
+async function createNewStatus(event) {
+    const labelModal = document.querySelector('#label-modal');
+    labelModal.innerText = 'Status title:';
+
+    $('#template-modal').modal('show');
+
+    const modalButton = document.querySelector('#modal-button');
+    modalButton.boardId = this.dataset.boardId;
+    await modalButton.addEventListener('click', processNewStatus);
+}
+
+async function processNewStatus(event) {
+    let boardTitle = document.querySelector('[name="modal-data"]').value;
+    const boardId = event.target.boardId;
+    if (boardTitle) {
+        let dataToBePosted = {
+            title: boardTitle,
+            board_id: boardId
+        };
+        let serverResponse = await fetch(url_add_new_status, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(dataToBePosted)
+        });
+        let jsonResponse = await serverResponse.json();
+        console.log(jsonResponse['success']);
+    } else {
+        let warn = document.querySelector('div.alert.alert-danger');
+        warn.style.display = 'block';
+        setTimeout(() => {
+            warn.style.display = 'none';
+        }, 2000);
     }
 }
 
@@ -221,8 +260,13 @@ async function init() {
     await getStatuses();
     await getTasks();
 
-    const createButton = document.querySelector('#create-board');
-    await createButton.addEventListener('click', createNewBoard);
+    const createBoardButton = document.querySelector('#create-board');
+    await createBoardButton.addEventListener('click', createNewBoard);
+
+    const createStatusButtons = document.querySelectorAll('.create-status');
+    for (let button of createStatusButtons) {
+        await button.addEventListener('click', createNewStatus);
+    }
 }
 
 init();

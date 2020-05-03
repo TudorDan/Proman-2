@@ -10,10 +10,7 @@
     </div>
 
     <div class="container">
-        <a href="" class="btn btn-success mb-3" id="create-board" data-toggle="modal"
-           data-target="#template-modal">
-            Create new board
-        </a>
+
 
         <div class="row">
             <div class="col-md-12">
@@ -21,7 +18,12 @@
                 <div class="card-deck mb-3 text-center">
                     <div class="card mb-4 box-shadow">
                         <div class="card-header">
-                            <h4 class="my-0 font-weight-normal">Boards</h4>
+                            <h4 class="my-0 font-weight-normal float-left">Boards</h4>
+                            <a href="" class="btn btn-success float-right" id="create-board" data-toggle="modal"
+                               data-target="#template-modal">
+                                <i class="fas fa-plus-circle"></i>
+                                Create new board
+                            </a>
                         </div>
                         <div class="card-body" id="boards-container">
 
@@ -42,8 +44,8 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <div class="alert alert-danger float-left" role="alert">Please insert a title!</div>
-                    <div class="alert alert-success float-left" role="alert">Title added successfully!</div>
+                    <div class="alert alert-danger float-left mb-0" role="alert">Please insert a title!</div>
+                    <div class="alert alert-success float-left mb-0" role="alert">Title added successfully!</div>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>

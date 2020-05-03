@@ -32,17 +32,6 @@ def get_tasks(cursor):
 
 
 @db.use
-def update_board(cursor, data):
-    query = """
-        UPDATE boards SET title = %(title)s WHERE id = %(id)s;
-    """
-    return cursor.execute(query, {
-        'id': data['id'],
-        'title': data['title']
-    })
-
-
-@db.use
 def create_board(cursor, title):
     query = """
         INSERT INTO boards (title) VALUES (%(title)s);
@@ -50,7 +39,7 @@ def create_board(cursor, title):
     cursor.execute(query, {
         'title': title
     })
-
+    # get the board_id the database created
     query = """
         SELECT * FROM boards
         WHERE title = %(title)s ORDER BY id DESC;
@@ -67,9 +56,32 @@ def create_board(cursor, title):
 
 
 @db.use
-def update_status(cursor, data):
+def create_status(cursor, data):
+    # get the last status position
     query = """
-        UPDATE statuses SET title = %(title)s WHERE id = %(id)s;
+            SELECT * FROM statuses
+            WHERE board_id = %(board_id)s ORDER BY position DESC;
+        """
+    cursor.execute(query, {
+        'board_id': data['board_id']
+    })
+    position = cursor.fetchone()['position']
+    position += 100
+
+    query = """
+        INSERT INTO statuses (title, position, board_id) VALUES (%(title)s, %(position)s, %(board_id)s);
+    """
+    return cursor.execute(query, {
+        'title': data['title'],
+        'position': position,
+        'board_id': data['board_id']
+    })
+
+
+@db.use
+def update_board(cursor, data):
+    query = """
+        UPDATE boards SET title = %(title)s WHERE id = %(id)s;
     """
     return cursor.execute(query, {
         'id': data['id'],
@@ -78,14 +90,13 @@ def update_status(cursor, data):
 
 
 @db.use
-def create_task(cursor, data):
+def update_status(cursor, data):
     query = """
-        INSERT INTO tasks (title, status_id) 
-            VALUES (%(title)s, %(status_id)s);
+        UPDATE statuses SET title = %(title)s WHERE id = %(id)s;
     """
     return cursor.execute(query, {
-        'title': data['title'],
-        'status_id': data['status_id']
+        'id': data['id'],
+        'title': data['title']
     })
 
 
