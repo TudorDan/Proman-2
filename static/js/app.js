@@ -5,6 +5,7 @@ url_tasks = url_api + "get-tasks";
 url_create_board = url_api + "create-board";
 url_create_status = url_api + "create-status";
 url_create_task = url_api + "create-task";
+url_drag_update_task = url_api + "drag-update-task";
 
 async function getBoards() {
     let serverResponse = await fetch(url_boards);
@@ -90,9 +91,10 @@ async function showStatuses(statuses) {
         let board = document.querySelector(`#board-${status.board_id}`);
         let statusTemplate = `
         <div class="collapse" id="collapse-board-${status.board_id}">
-            <div class="col-3 float-left border border-secondary" id="status-${status.id}">
+            <div class="float-left card border border-secondary status mb-2" id="status-${status.id}"
+             ondrop="drop(event)" ondragover="allowDrop(event)">
                 <h5 id="status-title-${status.id}" contenteditable="true" 
-                onfocusout="updateStatusTitle(${status.id})">${status.title}</h5>
+                onfocusout="updateStatusTitle(${status.id})" ondrop="preventDrop(event)">${status.title}</h5>
             </div>
         </div>`;
         board.innerHTML += statusTemplate;
@@ -103,8 +105,9 @@ async function showTasks(tasks) {
     for (let task of tasks) {
         let status = document.querySelector(`#status-${task.status_id}`);
         let taskTemplate = `
-        <div id="task-${task.id}">
-            <h5 id="task-title-${task.id}" class="border border-secondary" contenteditable="true" 
+        <div id="task-${task.id}" class="border border-secondary task mb-2" draggable="true" ondragstart="drag(event)" 
+        ondrop="preventDrop(event)">
+            <h5 id="task-title-${task.id}" contenteditable="true" 
             onfocusout="updateTaskTitle(${task.id})">${task.title}</h5>
         </div>`;
         status.innerHTML += taskTemplate;
@@ -297,6 +300,42 @@ async function processNewTask() {
             warn.style.display = 'none';
         }, 2000);
     }
+}
+
+function allowDrop(ev) {
+    ev.preventDefault();
+}
+
+function drag(ev) {
+    ev.dataTransfer.setData("text", ev.target.id);
+}
+
+async function drop(ev) {
+    ev.preventDefault();
+    const data = ev.dataTransfer.getData("text");
+
+    ev.target.appendChild(document.getElementById(data));
+    const taskId = data.replace('task-', '');
+    const statusId = document.getElementById(data).parentElement.id.replace('status-', '');
+
+    let dataToBePosted = {
+            task_id: taskId,
+            status_id: statusId
+        };
+    let serverResponse = await fetch(url_drag_update_task, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify(dataToBePosted)
+    });
+    let jsonResponse = await serverResponse.json();
+    console.log(jsonResponse['success']);
+}
+
+function preventDrop(ev) {
+    ev.stopPropagation();
 }
 
 async function init() {

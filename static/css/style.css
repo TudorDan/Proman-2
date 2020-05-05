@@ -36,3 +36,16 @@ html {
     font-weight: bolder;
     display: none;
 }
+
+.status {
+    min-height: 100px;
+    padding: 5px;
+}
+
+.task {
+    min-height: 50px;
+}
+
+.task > h5 {
+    display: inline-block;
+}

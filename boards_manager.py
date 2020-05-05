@@ -151,3 +151,11 @@ def delete_board(cursor, board_id):
     """
     # delete cards
     return cursor.execute(query, {'board_id': board_id})
+
+
+@db.use
+def drag_update_task(cursor, task_id, status_id):
+    query = """
+        UPDATE tasks SET status_id = %(status_id)s WHERE id = %(task_id)s;
+    """
+    return cursor.execute(query, {'status_id': status_id, 'task_id': task_id})

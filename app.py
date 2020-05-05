@@ -93,7 +93,14 @@ def create_task():
         'title': request_content['title'],
         'board_id': request_content['board_id']
     }
-    temp = boards_manager.create_task(data)
+    boards_manager.create_task(data)
+    return jsonify({'success': True})
+
+
+@app.route('/api/drag-update-task', methods=['POST'])
+def drag_update_task():
+    request_content = request.json
+    boards_manager.drag_update_task(request_content['task_id'], request_content['status_id'])
     return jsonify({'success': True})
 
 
