@@ -1,4 +1,5 @@
 import db
+import bcrypt
 
 
 @db.use
@@ -145,17 +146,51 @@ def update_task(cursor, data):
 
 
 @db.use
+def drag_update_task(cursor, task_id, status_id):
+    query = """
+        UPDATE tasks SET status_id = %(status_id)s WHERE id = %(task_id)s;
+    """
+    return cursor.execute(query, {'status_id': status_id, 'task_id': task_id})
+
+
+def hash_password(plain_text_password):
+    # By using bcrypt, the salt is saved into the hash itself
+    hashed_bytes = bcrypt.hashpw(plain_text_password.encode('utf-8'), bcrypt.gensalt())
+    return hashed_bytes.decode('utf-8')
+
+
+def verify_password(plain_text_password, hashed_password):
+    hashed_bytes_password = hashed_password.encode('utf-8')
+    return bcrypt.checkpw(plain_text_password.encode('utf-8'), hashed_bytes_password)
+
+
+@db.use
+def check_user(cursor, username):
+    query = """SELECT * FROM users WHERE name = %(username)s;"""
+    cursor.execute(query, {'username': username})
+    result = cursor.fetchone()
+    if result is None:
+        return True
+    return False
+
+
+@db.use
+def add_new_user(cursor, username, password):
+    query = """INSERT INTO users (name, password) VALUES(%(username)s, %(password)s);"""
+    cursor.execute(query, {'username': username, 'password': password})
+
+
+@db.use
+def get_user_data_by_username(cursor, username):
+    query = """SELECT * FROM users WHERE name = %(username)s;"""
+    cursor.execute(query, {'username': username})
+    return cursor.fetchone()
+
+
+@db.use
 def delete_board(cursor, board_id):
     query = """
         DELETE FROM boards WHERE id = %(board_id)s
     """
     # delete cards
     return cursor.execute(query, {'board_id': board_id})
-
-
-@db.use
-def drag_update_task(cursor, task_id, status_id):
-    query = """
-        UPDATE tasks SET status_id = %(status_id)s WHERE id = %(task_id)s;
-    """
-    return cursor.execute(query, {'status_id': status_id, 'task_id': task_id})

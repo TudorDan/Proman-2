@@ -1,0 +1,80 @@
+html {
+    font-size: 14px;
+}
+
+@media (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+.container {
+    max-width: 100%;
+}
+
+.pricing-header {
+    max-width: 700px;
+}
+
+.card-deck .card {
+    min-width: 220px;
+}
+
+.border-top {
+    border-top: 1px solid #e5e5e5;
+}
+
+.border-bottom {
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.box-shadow {
+    box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
+}
+
+/* STUDENT STYLING */
+.alert {
+    font-weight: bolder;
+    display: none;
+}
+
+.status-css {
+    min-height: 100px;
+    padding: 5px;
+}
+
+.status-css > h5, .task-css > h5 {
+    width: fit-content;
+}
+
+.task-css {
+    background-color: #D3D0DA;
+    min-height: 50px;
+}
+
+/*.task > h5 {*/
+/*    display: inline-block;*/
+/*}*/
+
+body {
+    color: #177199;
+    font-weight: bolder;
+    background-color: #E7F5DE;
+}
+
+.card-header {
+    background-color: #B5C1B4;
+}
+
+.card-header h4 {
+    color: #fff;
+    text-shadow: 0 0 4px rgba(255, 255, 255, .3), 0 0 6px rgba(255, 255, 255, .2);
+}
+
+.board-css {
+    background-color: #EBF2EA;
+}
+
+.div.card.mb-2 {
+    background-color: white;
+}

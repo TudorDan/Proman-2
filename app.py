@@ -1,8 +1,9 @@
-from flask import Flask, render_template, request, jsonify, url_for
+from flask import Flask, render_template, request, jsonify, redirect, url_for, session
 
 import boards_manager
 
 app = Flask(__name__)
+app.secret_key = 'Zalmodegikos'
 
 
 @app.route('/')
@@ -102,6 +103,50 @@ def drag_update_task():
     request_content = request.json
     boards_manager.drag_update_task(request_content['task_id'], request_content['status_id'])
     return jsonify({'success': True})
+
+
+@app.route('/registration', methods=['GET', 'POST'])
+def register_user():
+    user_ok = True
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+
+        user_ok = boards_manager.check_user(username)
+
+        if user_ok:
+            hashed_password = boards_manager.hash_password(password)
+            boards_manager.add_new_user(username, hashed_password)
+            return redirect(url_for('index'))
+        else:
+            user_ok = False
+    return render_template('register.html', user_ok=user_ok)
+
+
+@app.route('/user-login', methods=['GET', 'POST'])
+def login():
+    user_ok = True
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+
+        user_data = boards_manager.get_user_data_by_username(username)
+        print(user_data['name'])
+        if user_data is None or boards_manager.verify_password(password, user_data['password']) is False:
+            user_ok = False
+        else:
+            session['logged_in'] = True
+            session['username'] = user_data['name']
+            session['user_id'] = user_data['id']
+            return redirect(url_for('index'))
+    return render_template('login.html', user_ok=user_ok)
+
+
+@app.route('/user-logout')
+def logout():
+    session.clear()
+    session['logged_in'] = False
+    return redirect(url_for('index'))
 
 
 @app.route('/api/getdata')

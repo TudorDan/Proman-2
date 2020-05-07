@@ -1,15 +1,52 @@
 {% extends 'layout.html' %}
 
 {% block head %}
-    <script src="/static/js/app.js" defer></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
 {% endblock %}
 
 {% block content %}
-    <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom box-shadow">
-        <h5 class="my-0 mr-md-auto font-weight-normal">Boardz</h5>
-    </div>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light sticky-top">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText"
+                aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarText">
+            <ul class="navbar-nav mr-auto">
+                <li>
+                    <img src="{{ url_for('static', filename='favicon/favicon-32x32.png') }}">
+                </li>
+                <li class="nav-item active ml-2">
+                    <a class="nav-link" href="#">Proman Boards<span class="sr-only">(current)</span></a>
+                </li>
+                {% if session['logged_in'] %}
+                    <li class="nav-item ml-2">
+                        <a class="nav-link" id="statistics" href="#">Create Private Board</a>
+                    </li>
+                    <li class="nav-item ml-2">
+                        <a class="nav-link" href="/user-logout">Logout</a>
+                    </li>
+                {% else %}
+                    <li class="nav-item ml-2">
+                        <a class="nav-link" href="/registration">Registration</a>
+                    </li>
+                    <li class="nav-item ml-2">
+                        <a class="nav-link" href="/user-login">Login</a>
+                    </li>
+                {% endif %}
 
-    <div class="container">
+
+            </ul>
+            <span class="navbar-text mr-3">
+                {% if session['logged_in'] %}
+                    Signed in as {{ session['username'] }}
+                {% else %}
+                    Not signed in
+                {% endif %}
+            </span>
+        </div>
+    </nav>
+
+    <div class="container mt-2">
 
 
         <div class="row">

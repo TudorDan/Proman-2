@@ -11,57 +11,26 @@ async function getBoards() {
     let serverResponse = await fetch(url_boards);
     let jsonResponse = await serverResponse.json();
     await showBoards(jsonResponse);
-    // fetch(url_boards)
-    //     .then((serverResponse) => {
-    //         return serverResponse.json();
-    //     })
-    //     .then((jsonResponse) => {
-    //         console.log('1');
-    //         showBoards(jsonResponse);
-    //     });
 }
 
 async function getStatuses() {
     let serverResponse = await fetch(url_statuses);
     let jsonResponse = await serverResponse.json();
     await showStatuses(jsonResponse);
-    // fetch(url_statuses)
-    //     .then((serverResponse) => {
-    //         return serverResponse.json();
-    //     })
-    //     .then((jsonResponse) => {
-    //         console.log('2');
-    //         showStatuses(jsonResponse);
-    //     });
 }
 
 async function getTasks() {
     let serverResponse = await fetch(url_tasks);
     let jsonResponse = await serverResponse.json();
     await showTasks(jsonResponse);
-    // fetch(url_tasks)
-    //     .then((serverResponse) => {
-    //         return serverResponse.json();
-    //     })
-    //     .then((jsonResponse) => {
-    //         console.log('3');
-    //         showTasks(jsonResponse);
-    //     });
 }
 
 async function showBoards(boards) {
     for (let board of boards) {
         let boards_container = document.getElementById('boards-container');
-        // card_template = `<div class="card float-left mb-2" style="width:120px;">
-        // <div class="card-body">
-        // <h5 class="card-title" id="board-title-`+board.id+`" contenteditable="true"
-        // onfocusout="updateBoardTitle(` + board.id + `)">` + board.title + `</h5>
-        // <a href="#" class="btn btn-primary" onClick="getCardsForBoard(` + board.id + `)">Show Cards</a>
-        // </div>
-        // </div>`
         let board_template = `
         <div class="card mb-2">
-            <div class="card-body" id="board-${board.id}">
+            <div class="card-body board-css" id="board-${board.id}">
                 <div class="row mb-2">
                     <h5 class="card-title float-left" id="board-title-${board.id}" contenteditable="true" 
                     onfocusout="updateBoardTitle(${board.id})">${board.title}</h5>
@@ -91,10 +60,12 @@ async function showStatuses(statuses) {
         let board = document.querySelector(`#board-${status.board_id}`);
         let statusTemplate = `
         <div class="collapse" id="collapse-board-${status.board_id}">
-            <div class="float-left card border border-secondary status mb-2" id="status-${status.id}"
+            <div class="float-left card border border-secondary status-css mb-2" id="status-${status.id}"
              ondrop="drop(event)" ondragover="allowDrop(event)">
-                <h5 id="status-title-${status.id}" contenteditable="true" 
-                onfocusout="updateStatusTitle(${status.id})" ondrop="preventDrop(event)">${status.title}</h5>
+                <h5 id="status-title-${status.id}" contenteditable="true" class="mx-auto"
+                onfocusout="updateStatusTitle(${status.id})" ondrop="preventDrop(event)">
+                    ${status.title}
+                </h5>
             </div>
         </div>`;
         board.innerHTML += statusTemplate;
@@ -105,10 +76,12 @@ async function showTasks(tasks) {
     for (let task of tasks) {
         let status = document.querySelector(`#status-${task.status_id}`);
         let taskTemplate = `
-        <div id="task-${task.id}" class="border border-secondary task mb-2" draggable="true" ondragstart="drag(event)" 
-        ondrop="preventDrop(event)">
-            <h5 id="task-title-${task.id}" contenteditable="true" 
-            onfocusout="updateTaskTitle(${task.id})">${task.title}</h5>
+        <div id="task-${task.id}" class="border border-secondary task-css mb-2" draggable="true" 
+        ondragstart="drag(event)" ondrop="preventDrop(event)">
+            <h5 id="task-title-${task.id}" contenteditable="true" onfocusout="updateTaskTitle(${task.id})" 
+            class="mx-auto">
+                ${task.title}
+            </h5>
         </div>`;
         status.innerHTML += taskTemplate;
     }
@@ -316,7 +289,7 @@ async function drop(ev) {
 
     ev.target.appendChild(document.getElementById(data));
     const taskId = data.replace('task-', '');
-    const statusId = document.getElementById(data).parentElement.id.replace('status-', '');
+    const statusId = ev.target.id.replace('status-', '');
 
     let dataToBePosted = {
             task_id: taskId,
