@@ -1,11 +1,11 @@
-url_api = 'http://127.0.0.1:5000/api/';
-url_boards = url_api + "get-boards";
-url_statuses = url_api + "get-statuses";
-url_tasks = url_api + "get-tasks";
-url_create_board = url_api + "create-board";
-url_create_status = url_api + "create-status";
-url_create_task = url_api + "create-task";
-url_drag_update_task = url_api + "drag-update-task";
+const url_api = 'http://127.0.0.1:5000/api/';
+const url_boards = url_api + "get-boards";
+const url_statuses = url_api + "get-statuses";
+const url_tasks = url_api + "get-tasks";
+const url_create_board = url_api + "create-board";
+const url_create_status = url_api + "create-status";
+const url_create_task = url_api + "create-task";
+const url_drag_update_task = url_api + "drag-update-task";
 
 async function getBoards() {
     let serverResponse = await fetch(url_boards);
@@ -30,7 +30,7 @@ async function showBoards(boards) {
         let boards_container = document.getElementById('boards-container');
         let board_template = `
         <div class="card mb-2">
-            <div class="card-body board-css" id="board-${board.id}">
+            <div class="card-body board-css" id="boardd-${board.id}">
                 <div class="row mb-2">
                     <h5 class="card-title float-left" id="board-title-${board.id}" contenteditable="true" 
                     onfocusout="updateBoardTitle(${board.id})">${board.title}</h5>
@@ -49,54 +49,75 @@ async function showBoards(boards) {
                         <i class="far fa-caret-square-down fa-2x"></i>
                     </a>
                 </div>
+                <div class="collapse" id="collapse-board-${board.id}"></div>
             </div>
         </div>`;
         boards_container.innerHTML += board_template;
     }
 }
 
+function addDragula() {
+    let statuses = document.querySelectorAll("[id^='statuss-']");
+    let statusesArray = Array.from(statuses);
+    dragula(statusesArray);
+}
+
 async function showStatuses(statuses) {
     for (let status of statuses) {
-        let board = document.querySelector(`#board-${status.board_id}`);
+        let board = document.querySelector(`#collapse-board-${status.board_id}`);
         let statusTemplate = `
-        <div class="collapse" id="collapse-board-${status.board_id}">
-            <div class="float-left card border border-secondary status-css mb-2" id="status-${status.id}"
-             ondrop="drop(event)" ondragover="allowDrop(event)">
-                <h5 id="status-title-${status.id}" contenteditable="true" class="mx-auto"
-                onfocusout="updateStatusTitle(${status.id})" ondrop="preventDrop(event)">
-                    ${status.title}
-                </h5>
-            </div>
+        <div class="float-left card border border-secondary status-css mb-2" id="statuss-${status.id}">
+            <h5 id="status-title-${status.id}" contenteditable="true" class="mx-auto"
+            onfocusout="updateStatusTitle(${status.id})">
+                ${status.title}
+            </h5>
         </div>`;
+        // let statusTemplate = `
+        // <div class="collapse" id="collapse-board-${status.board_id}">
+        //     <div class="float-left card border border-secondary status-css mb-2" id="status-${status.id}"
+        //      ondrop="drop(event)" ondragover="allowDrop(event)">
+        //         <h5 id="status-title-${status.id}" contenteditable="true" class="mx-auto"
+        //         onfocusout="updateStatusTitle(${status.id})" ondrop="preventDrop(event)">
+        //             ${status.title}
+        //         </h5>
+        //     </div>
+        // </div>`;
         board.innerHTML += statusTemplate;
     }
 }
 
 async function showTasks(tasks) {
     for (let task of tasks) {
-        let status = document.querySelector(`#status-${task.status_id}`);
+        let status = document.querySelector(`#statuss-${task.status_id}`);
         let taskTemplate = `
-        <div id="task-${task.id}" class="border border-secondary task-css mb-2" draggable="true" 
-        ondragstart="drag(event)" ondrop="preventDrop(event)">
+        <div id="task-${task.id}" class="border border-secondary task-css mb-2">
             <h5 id="task-title-${task.id}" contenteditable="true" onfocusout="updateTaskTitle(${task.id})" 
             class="mx-auto">
                 ${task.title}
             </h5>
         </div>`;
+        // let taskTemplate = `
+        // <div id="task-${task.id}" class="border border-secondary task-css mb-2" draggable="true"
+        // ondragstart="drag(event)" ondrop="preventDrop(event)">
+        //     <h5 id="task-title-${task.id}" contenteditable="true" onfocusout="updateTaskTitle(${task.id})"
+        //     class="mx-auto">
+        //         ${task.title}
+        //     </h5>
+        // </div>`;
         status.innerHTML += taskTemplate;
     }
 }
 
 function updateBoardTitle(boardId) {
-    elementToSelect = "board-title-" + boardId;
-    titleValue = document.getElementById(elementToSelect);
+    let elementToSelect = "board-title-" + boardId;
+    let titleValue = document.getElementById(elementToSelect);
 
-    data = {
+    let data = {
         'id': boardId,
         'title': titleValue.innerText,
     }
 
-    settings = {
+    let settings = {
         'method': 'POST',
         'headers': {
             'Content-Type': 'application/json',
@@ -109,21 +130,18 @@ function updateBoardTitle(boardId) {
         .then((serverResponse) => {
             return serverResponse.json();
         })
-    // .then((jsonResponse) => {
-    //     console.log(jsonResponse);
-    // })
 }
 
 function updateStatusTitle(statusId) {
-    elementToSelect = "status-title-" + statusId;
-    titleValue = document.getElementById(elementToSelect);
+    let elementToSelect = "status-title-" + statusId;
+    let titleValue = document.getElementById(elementToSelect);
 
-    data = {
+    let data = {
         'id': statusId,
         'title': titleValue.innerText,
     }
 
-    settings = {
+    let settings = {
         'method': 'POST',
         'headers': {
             'Content-Type': 'application/json',
@@ -136,21 +154,18 @@ function updateStatusTitle(statusId) {
         .then((serverResponse) => {
             return serverResponse.json();
         })
-    // .then((jsonResponse) => {
-    //     console.log(jsonResponse);
-    // })
 }
 
 function updateTaskTitle(taskId) {
-    elementToSelect = "task-title-" + taskId;
-    titleValue = document.getElementById(elementToSelect);
+    let elementToSelect = "task-title-" + taskId;
+    let titleValue = document.getElementById(elementToSelect);
 
-    data = {
+    let data = {
         'id': taskId,
         'title': titleValue.innerText,
     }
 
-    settings = {
+    let settings = {
         'method': 'POST',
         'headers': {
             'Content-Type': 'application/json',
@@ -163,9 +178,6 @@ function updateTaskTitle(taskId) {
         .then((serverResponse) => {
             return serverResponse.json();
         })
-    // .then((jsonResponse) => {
-    //     console.log(jsonResponse);
-    // })
 }
 
 async function createNewBoard() {
@@ -275,41 +287,41 @@ async function processNewTask() {
     }
 }
 
-function allowDrop(ev) {
-    ev.preventDefault();
-}
+// function allowDrop(ev) {
+//     ev.preventDefault();
+// }
 
-function drag(ev) {
-    ev.dataTransfer.setData("text", ev.target.id);
-}
+// function drag(ev) {
+//     ev.dataTransfer.setData("text", ev.target.id);
+// }
 
-async function drop(ev) {
-    ev.preventDefault();
-    const data = ev.dataTransfer.getData("text");
+// async function drop(ev) {
+//     ev.preventDefault();
+//     const data = ev.dataTransfer.getData("text");
+//
+//     ev.target.appendChild(document.getElementById(data));
+//     const taskId = data.replace('task-', '');
+//     const statusId = ev.target.id.replace('status-', '');
+//
+//     let dataToBePosted = {
+//             task_id: taskId,
+//             status_id: statusId
+//         };
+//     let serverResponse = await fetch(url_drag_update_task, {
+//         method: 'POST',
+//         headers: {
+//             'Content-Type': 'application/json',
+//             'Accept': 'application/json'
+//         },
+//         body: JSON.stringify(dataToBePosted)
+//     });
+//     let jsonResponse = await serverResponse.json();
+//     console.log(jsonResponse['success']);
+// }
 
-    ev.target.appendChild(document.getElementById(data));
-    const taskId = data.replace('task-', '');
-    const statusId = ev.target.id.replace('status-', '');
-
-    let dataToBePosted = {
-            task_id: taskId,
-            status_id: statusId
-        };
-    let serverResponse = await fetch(url_drag_update_task, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-        },
-        body: JSON.stringify(dataToBePosted)
-    });
-    let jsonResponse = await serverResponse.json();
-    console.log(jsonResponse['success']);
-}
-
-function preventDrop(ev) {
-    ev.stopPropagation();
-}
+// function preventDrop(ev) {
+//     ev.stopPropagation();
+// }
 
 async function init() {
     await getBoards();
@@ -328,6 +340,8 @@ async function init() {
     for (let button of createTaskButtons) {
         await button.addEventListener('click', createNewTask);
     }
+
+    addDragula();
 }
 
 init();
