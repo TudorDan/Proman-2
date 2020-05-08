@@ -5,7 +5,6 @@ const url_tasks = url_api + "get-tasks";
 const url_create_board = url_api + "create-board";
 const url_create_status = url_api + "create-status";
 const url_create_task = url_api + "create-task";
-const url_drag_update_task = url_api + "drag-update-task";
 
 async function getBoards() {
     let serverResponse = await fetch(url_boards);
@@ -28,7 +27,9 @@ async function getTasks() {
 async function showBoards(boards) {
     for (let board of boards) {
         let boards_container = document.getElementById('boards-container');
-        let board_template = `
+        let board_template;
+        if (board.user_id === null) {
+            board_template = `
         <div class="card mb-2">
             <div class="card-body board-css" id="boardd-${board.id}">
                 <div class="row mb-2">
@@ -52,6 +53,33 @@ async function showBoards(boards) {
                 <div class="collapse" id="collapse-board-${board.id}"></div>
             </div>
         </div>`;
+        } else {
+            board_template = `
+        <div class="card mb-2">
+            <div class="card-body board-css-private" id="board-${board.id}">
+                <div class="row mb-2">
+                    <h5 class="card-title float-left" id="board-title-${board.id}" contenteditable="true" 
+                    onfocusout="updateBoardTitle(${board.id})">${board.title}</h5>
+                    <span>(private)</span>
+                    <a href="" class="btn btn-info mx-auto create-status" data-board-id="${board.id}"
+                        data-toggle="modal" data-target="#template-modal">
+                       <i class="fas fa-plus-circle"></i>
+                       New status
+                    </a>
+                    <a href="" class="btn btn-secondary mx-auto create-task" data-board-id="${board.id}"
+                        data-toggle="modal" data-target="#template-modal">
+                       <i class="fas fa-plus-circle"></i>
+                       New task
+                    </a>
+                    <a class="float-right" data-toggle="collapse" href="#collapse-board-${board.id}" role="button" 
+                    aria-expanded="false" aria-controls="collapse-board">
+                        <i class="far fa-caret-square-down fa-2x"></i>
+                    </a>
+                </div>
+                <div class="collapse" id="collapse-board-${board.id}"></div>
+            </div>
+        </div>`;
+        }
         boards_container.innerHTML += board_template;
     }
 }
@@ -191,7 +219,52 @@ async function createNewBoard() {
 async function processNewBoard(event) {
     let boardTitle = document.querySelector('[name="modal-data"]').value;
     if (boardTitle) {
-        let dataToBePosted = {title: boardTitle};
+        let dataToBePosted = {
+            title: boardTitle,
+            user_id: null
+        };
+        let serverResponse = await fetch(url_create_board, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(dataToBePosted)
+        });
+        let jsonResponse = await serverResponse.json();
+        console.log(jsonResponse['success']);
+    } else {
+        let warn = document.querySelector('div.alert.alert-danger');
+        warn.style.display = 'block';
+        setTimeout(() => {
+            warn.style.display = 'none';
+        }, 2000);
+    }
+}
+
+async function makePrivateBoard() {
+    const privateButton = document.querySelector('#make-private-board');
+    await privateButton.addEventListener('click', createNewPrivateBoard);
+}
+
+async function createNewPrivateBoard(event) {
+    event.preventDefault();
+    const labelModal = document.querySelector('#label-modal');
+    labelModal.innerText = 'Board title:';
+    $('#template-modal').modal('show');
+    const modalButton = document.querySelector('#modal-button');
+    await modalButton.addEventListener('click', processNewPrivateBoard);
+}
+
+async function processNewPrivateBoard(event) {
+    const userId = obtainUserId();
+
+    let boardTitle = document.querySelector('[name="modal-data"]').value;
+    if (boardTitle) {
+        let dataToBePosted = {
+            title: boardTitle,
+            user_id: userId
+        };
         let serverResponse = await fetch(url_create_board, {
             method: 'POST',
             headers: {
@@ -323,6 +396,15 @@ async function processNewTask() {
 //     ev.stopPropagation();
 // }
 
+function obtainUserId() {
+    const userLoggedIn = document.querySelector('#user-logged-in');
+    if (userLoggedIn.innerText.startsWith('Signed in as')) {
+        return userLoggedIn.dataset.userId;
+    } else {
+        return null;
+    }
+}
+
 async function init() {
     await getBoards();
     await getStatuses();
@@ -342,6 +424,7 @@ async function init() {
     }
 
     addDragula();
+    await makePrivateBoard();
 }
 
 init();

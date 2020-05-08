@@ -33,12 +33,13 @@ def get_tasks(cursor):
 
 
 @db.use
-def create_board(cursor, title):
+def create_board(cursor, title, user_id):
     query = """
-        INSERT INTO boards (title) VALUES (%(title)s);
+        INSERT INTO boards (title, user_id) VALUES (%(title)s, %(user_id)s);
     """
     cursor.execute(query, {
-        'title': title
+        'title': title,
+        'user_id': user_id
     })
     # get the board_id the database created
     query = """

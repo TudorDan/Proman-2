@@ -68,7 +68,8 @@ def update_task():
 def create_board():
     request_content = request.json
     title = request_content['title']
-    boards_manager.create_board(title)
+    user_id = request_content['user_id']
+    boards_manager.create_board(title, user_id)
     return jsonify({'success': True})
 
 
