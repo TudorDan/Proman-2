@@ -25,9 +25,15 @@ async function getTasks() {
 }
 
 async function showBoards(boards) {
+    const loggedIn = document.querySelector('#user-logged-in');
+    let userIntegerId = 0;
+    if (loggedIn.innerText.startsWith('Signed in as')) {
+        userIntegerId = parseInt(loggedIn.dataset.userId);
+    }
     for (let board of boards) {
         let boards_container = document.getElementById('boards-container');
         let board_template;
+
         if (board.user_id === null) {
             board_template = `
         <div class="card mb-2">
@@ -53,7 +59,7 @@ async function showBoards(boards) {
                 <div class="collapse" id="collapse-board-${board.id}"></div>
             </div>
         </div>`;
-        } else {
+        } else if (board.user_id === userIntegerId) {
             board_template = `
         <div class="card mb-2">
             <div class="card-body board-css-private" id="board-${board.id}">
@@ -79,6 +85,8 @@ async function showBoards(boards) {
                 <div class="collapse" id="collapse-board-${board.id}"></div>
             </div>
         </div>`;
+        } else {
+            continue;
         }
         boards_container.innerHTML += board_template;
     }
@@ -211,7 +219,7 @@ function updateTaskTitle(taskId) {
 async function createNewBoard() {
     const labelModal = document.querySelector('#label-modal');
     labelModal.innerText = 'Board title:';
-    $('#template-modal').modal('show');
+     $('#template-modal').modal('show');
     const modalButton = document.querySelector('#modal-button');
     await modalButton.addEventListener('click', processNewBoard);
 }
@@ -242,15 +250,10 @@ async function processNewBoard(event) {
     }
 }
 
-async function makePrivateBoard() {
-    const privateButton = document.querySelector('#make-private-board');
-    await privateButton.addEventListener('click', createNewPrivateBoard);
-}
-
-async function createNewPrivateBoard(event) {
+async function makeNewPrivateBoard(event) {
     event.preventDefault();
     const labelModal = document.querySelector('#label-modal');
-    labelModal.innerText = 'Board title:';
+    labelModal.innerText = 'Private Board title:';
     $('#template-modal').modal('show');
     const modalButton = document.querySelector('#modal-button');
     await modalButton.addEventListener('click', processNewPrivateBoard);
@@ -282,6 +285,7 @@ async function processNewPrivateBoard(event) {
             warn.style.display = 'none';
         }, 2000);
     }
+    window.location.reload();
 }
 
 async function createNewStatus(event) {
@@ -399,7 +403,7 @@ async function processNewTask() {
 function obtainUserId() {
     const userLoggedIn = document.querySelector('#user-logged-in');
     if (userLoggedIn.innerText.startsWith('Signed in as')) {
-        return userLoggedIn.dataset.userId;
+        return parseInt(userLoggedIn.dataset.userId);
     } else {
         return null;
     }
@@ -424,7 +428,9 @@ async function init() {
     }
 
     addDragula();
-    await makePrivateBoard();
+
+    const privateBoardButton = document.querySelector('#make-private-board');
+    await privateBoardButton.addEventListener('click', makeNewPrivateBoard);
 }
 
 init();
