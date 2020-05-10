@@ -236,3 +236,12 @@ def delete_board(cursor, board_id):
         WHERE id = %(board_id)s;
     """
     cursor.execute(query, {'board_id': board_id})
+
+
+@db.use
+def delete_task(cursor, task_id):
+    query = """
+        DELETE FROM tasks
+        WHERE id = %(task_id)s;
+    """
+    cursor.execute(query, {'task_id': task_id})

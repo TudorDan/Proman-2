@@ -293,7 +293,6 @@ function dragula (initialContainers, options) {
           status_id: statusId,
           rank: taskRank
         }
-        console.log(dataToBePosted);
         let serverResponse = await fetch('http://127.0.0.1:5000/api/drag-drop-update-task', {
             method: 'POST',
             headers: {

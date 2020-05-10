@@ -159,23 +159,12 @@ def drag_update_task():
     return jsonify({'success': True})
 
 
-@app.route('/api/getdata')
-def get_data():
-    data = [
-        {'key': 'value', 'other': 123},
-        {'key': 'value', 'other': 456},
-        {'key': 'value', 'other': 789},
-    ]
-
-    return jsonify(data)
-
-
 # receives (id)
 # returns json
-@app.route('/api/delete-card', methods=['POST'])
-def delete_card():
-    request_content = request.json()
-    boards_manager.delete_card(request_content['id'])
+@app.route('/api/delete-task', methods=['POST'])
+def delete_task():
+    request_content = request.json
+    boards_manager.delete_task(request_content['task_id'])
     return jsonify({'success': True})
 
 

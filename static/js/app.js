@@ -6,6 +6,7 @@ const url_create_board = url_api + "create-board";
 const url_create_status = url_api + "create-status";
 const url_create_task = url_api + "create-task";
 const url_delete_board = url_api + "delete-board";
+const url_delete_task = url_api + "delete-task";
 
 async function getBoards() {
     let serverResponse = await fetch(url_boards);
@@ -142,6 +143,9 @@ async function showTasks(tasks) {
                 class="mx-auto">
                     ${task.title}
                 </h5>
+                <a href="" class="delete-task" data-task-id="${task.id}" data-task-title="${task.title}">
+                    <i class="fas fa-trash-alt"></i>
+                </a>
             </div>`;
             status.innerHTML += taskTemplate;
         }
@@ -405,6 +409,35 @@ async function processDeleteBoard(event) {
     window.location.reload();
 }
 
+function deleteTask(event) {
+    event.preventDefault();
+    const taskName = this.dataset.taskTitle;
+    let modalTitle = document.querySelector('#delete-modal-title');
+    modalTitle.innerHTML = `Are you sure you want to delete <strong>${taskName}</strong>?`;
+    $('#delete-modal').modal('show');
+    const deleteButton = document.querySelector('#delete-button');
+    deleteButton.taskNumber = this.dataset.taskId;
+    deleteButton.addEventListener('click', processDeleteTask);
+}
+
+async function processDeleteTask() {
+    const taskId = parseInt(this.taskNumber);
+    let dataToBePosted = {
+        task_id: taskId
+    };
+    let serverResponse = await fetch(url_delete_task, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify(dataToBePosted)
+    });
+    let jsonResponse = await serverResponse.json();
+    console.log(jsonResponse['success']);
+    window.location.reload();
+}
+
 async function init() {
     await getBoards();
     await getStatuses();
@@ -434,6 +467,11 @@ async function init() {
     const deleteBoardButtons = document.querySelectorAll('.delete-board');
     for (let button of deleteBoardButtons) {
         await button.addEventListener('click', deleteBoard);
+    }
+
+    const deleteTaskButtons = document.querySelectorAll('.delete-task');
+    for (let button of deleteTaskButtons) {
+        await button.addEventListener('click', deleteTask);
     }
 }
 
