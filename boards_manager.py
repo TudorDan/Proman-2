@@ -245,3 +245,23 @@ def delete_task(cursor, task_id):
         WHERE id = %(task_id)s;
     """
     cursor.execute(query, {'task_id': task_id})
+
+
+@db.use
+def archive_task(cursor, task_id):
+    query = """
+        UPDATE tasks
+        SET archived = TRUE
+        WHERE id = %(task_id)s;
+    """
+    cursor.execute(query, {'task_id': task_id})
+
+
+@db.use
+def activate_task(cursor, task_id):
+    query = """
+        UPDATE tasks
+        SET archived = FALSE
+        WHERE id = %(task_id)s;
+    """
+    cursor.execute(query, {'task_id': task_id})

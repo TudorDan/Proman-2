@@ -168,6 +168,24 @@ def delete_task():
     return jsonify({'success': True})
 
 
+# receives (id)
+# returns json
+@app.route('/api/archive-task', methods=['POST'])
+def archive_task():
+    request_content = request.json
+    boards_manager.archive_task(request_content['task_id'])
+    return jsonify({'success': True})
+
+
+# receives (id)
+# returns json
+@app.route('/api/activate-task', methods=['POST'])
+def activate_task():
+    request_content = request.json
+    boards_manager.activate_task(request_content['task_id'])
+    return jsonify({'success': True})
+
+
 if __name__ == '__main__':
     app.run(
         debug=True

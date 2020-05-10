@@ -92,3 +92,7 @@ body {
     text-shadow: 0 3px 3px rgba(255,255,255,0.5), -3px -3px 6px rgba(23,113,153,0);
     font-weight: bolder;
 }
+
+.fa-folder-open {
+    color: springgreen;
+}

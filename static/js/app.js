@@ -7,6 +7,8 @@ const url_create_status = url_api + "create-status";
 const url_create_task = url_api + "create-task";
 const url_delete_board = url_api + "delete-board";
 const url_delete_task = url_api + "delete-task";
+const url_archive_task = url_api + "archive-task";
+const url_activate_task = url_api + "activate-task";
 
 async function getBoards() {
     let serverResponse = await fetch(url_boards);
@@ -47,7 +49,7 @@ async function showBoards(boards) {
                         </h5>
                         <span>public board</span>
                     </div>
-                    <div class="row mb-2">
+                    <div class="mb-2 row">
                         <a class="float-left" data-toggle="collapse" href="#collapse-board-${board.id}" role="button" 
                         aria-expanded="false" aria-controls="collapse-board">
                             <i class="far fa-caret-square-down fa-2x"></i>
@@ -136,14 +138,17 @@ async function showStatuses(statuses) {
 async function showTasks(tasks) {
     for (let task of tasks) {
         let status = document.querySelector(`#statuss-${task.status_id}`);
-        if (status !== null) {
+        if (status !== null && task.archived === false) {
             let taskTemplate = `
             <div id="taskk-${task.id}" class="border border-secondary task-css mb-2">
                 <h5 id="task-title-${task.id}" contenteditable="true" onfocusout="updateTaskTitle(${task.id})" 
                 class="mx-auto">
                     ${task.title}
                 </h5>
-                <a href="" class="delete-task" data-task-id="${task.id}" data-task-title="${task.title}">
+                <a href="" class="col-6 archive-task" data-task-id="${task.id}" data-task-title="${task.title}">
+                    <i class="far fa-file-archive"></i>
+                </a>
+                <a href="" class="col-6 delete-task" data-task-id="${task.id}" data-task-title="${task.title}">
                     <i class="fas fa-trash-alt"></i>
                 </a>
             </div>`;
@@ -227,7 +232,7 @@ function updateTaskTitle(taskId) {
 async function createNewBoard() {
     const labelModal = document.querySelector('#label-modal');
     labelModal.innerText = 'Board title:';
-     $('#template-modal').modal('show');
+    $('#template-modal').modal('show');
     const modalButton = document.querySelector('#modal-button');
     await modalButton.addEventListener('click', processNewBoard);
 }
@@ -438,6 +443,96 @@ async function processDeleteTask() {
     window.location.reload();
 }
 
+function archiveTask(event) {
+    event.preventDefault();
+    const taskName = this.dataset.taskTitle;
+    let modalTitle = document.querySelector('#delete-modal-title');
+    modalTitle.innerHTML = `Are you sure you want to archive <strong>${taskName}</strong>?`;
+    let archiveButton = document.querySelector('#delete-button');
+    archiveButton.innerText = 'Archive';
+    $('#delete-modal').modal('show');
+    archiveButton.taskNumber = this.dataset.taskId;
+    archiveButton.addEventListener('click', processArchiveTask);
+}
+
+async function processArchiveTask() {
+    const taskId = parseInt(this.taskNumber);
+    let dataToBePosted = {
+        task_id: taskId
+    };
+    let serverResponse = await fetch(url_archive_task, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify(dataToBePosted)
+    });
+    let jsonResponse = await serverResponse.json();
+    console.log(jsonResponse['success']);
+    window.location.reload();
+}
+
+async function getArchivedTasks(event) {
+    event.preventDefault();
+    let serverResponse = await fetch(url_tasks);
+    let tasks = await serverResponse.json();
+
+    let modalBody = document.querySelector('#archive-modal-body');
+    let body = '';
+    let archiveIsNotEmpty = false;
+    for (let task of tasks) {
+        if (task.archived === true) {
+            archiveIsNotEmpty = true;
+            body += `
+            <tr>
+                <td>${task.title}</td>
+                <td><a href="" id="activate-task" data-task-id="${task.id}"><i class="far fa-folder-open"></i></a></td>
+            </tr>
+            `;
+        }
+    }
+    if (archiveIsNotEmpty) {
+        modalBody.innerHTML = `
+        <table class="table table-bordered table-light table-striped table-responsive-md text-center">
+            <thead class="table-secondary">
+                <tr>
+                    <th>Task Name</th>
+                    <th>Activate</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${body}
+            </tbody>
+        </table>
+        `;
+
+        const activateTaskButton = document.querySelector('#activate-task');
+        await activateTaskButton.addEventListener('click', activateArchivedTask);
+    } else {
+        modalBody.innerText = 'There are no archived tasks in the database!';
+    }
+    await $('#archive-modal').modal('show');
+}
+
+async function activateArchivedTask(event) {
+    const taskNumber = parseInt(this.dataset.taskId);
+    let dataToBePosted = {
+        task_id: taskNumber
+    };
+    let serverResponse = await fetch(url_activate_task, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify(dataToBePosted)
+    });
+    let jsonResponse = await serverResponse.json();
+    console.log(jsonResponse['success']);
+    window.location.reload();
+}
+
 async function init() {
     await getBoards();
     await getStatuses();
@@ -473,6 +568,14 @@ async function init() {
     for (let button of deleteTaskButtons) {
         await button.addEventListener('click', deleteTask);
     }
+
+    const archiveTaskButtons = document.querySelectorAll('.archive-task');
+    for (let button of archiveTaskButtons) {
+        await button.addEventListener('click', archiveTask);
+    }
+
+    const archiveList = document.querySelector('.archived-list');
+    await archiveList.addEventListener('click', getArchivedTasks);
 }
 
 init();
