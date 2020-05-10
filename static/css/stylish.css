@@ -52,10 +52,6 @@ html {
     min-height: 50px;
 }
 
-/*.task > h5 {*/
-/*    display: inline-block;*/
-/*}*/
-
 body {
     color: #177199;
     font-weight: bolder;
@@ -85,4 +81,14 @@ body {
 
 .fa-trash-alt {
     color: #585A56;
+}
+
+.card-body {
+    padding-top: 10px;
+    padding-bottom: 0;
+}
+
+.card-title {
+    text-shadow: 0 3px 3px rgba(255,255,255,0.5), -3px -3px 6px rgba(23,113,153,0);
+    font-weight: bolder;
 }

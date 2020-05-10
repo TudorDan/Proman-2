@@ -37,63 +37,72 @@ async function showBoards(boards) {
 
         if (board.user_id === null) {
             board_template = `
-        <div class="card mb-2">
-            <div class="card-body board-css" id="boardd-${board.id}">
-                <div class="row mb-2">
-                    <h5 class="card-title float-left" id="board-title-${board.id}" contenteditable="true" 
-                    onfocusout="updateBoardTitle(${board.id})">${board.title}</h5>
-                    <a href="" class="mx-auto delete-board" data-board-id="${board.id}"
-                    data-board-title="${board.title}">
-                        <i class="far fa-trash-alt fa-lg"></i>
-                    </a>
-                    <a href="" class="btn btn-info mx-auto create-status" data-board-id="${board.id}"
-                        data-toggle="modal" data-target="#template-modal">
-                       <i class="fas fa-plus-circle"></i>
-                       New status
-                    </a>
-                    <a href="" class="btn btn-secondary mx-auto create-task" data-board-id="${board.id}"
-                        data-toggle="modal" data-target="#template-modal">
-                       <i class="fas fa-plus-circle"></i>
-                       New task
-                    </a>
-                    <a class="float-right" data-toggle="collapse" href="#collapse-board-${board.id}" role="button" 
-                    aria-expanded="false" aria-controls="collapse-board">
-                        <i class="far fa-caret-square-down fa-2x"></i>
-                    </a>
+            <div class="card mb-2">
+                <div class="card-body board-css" id="boardd-${board.id}">
+                    <div class="row m-0">
+                        <h5 class="card-title mx-auto" id="board-title-${board.id}" contenteditable="true" 
+                        onfocusout="updateBoardTitle(${board.id})">
+                            ${board.title}
+                        </h5>
+                        <span>public board</span>
+                    </div>
+                    <div class="row mb-2">
+                        <a class="float-left" data-toggle="collapse" href="#collapse-board-${board.id}" role="button" 
+                        aria-expanded="false" aria-controls="collapse-board">
+                            <i class="far fa-caret-square-down fa-2x"></i>
+                        </a>
+                        <a href="" class="btn btn-info mx-auto create-status" data-board-id="${board.id}"
+                            data-toggle="modal" data-target="#template-modal">
+                           <i class="fas fa-plus-circle"></i>
+                           New status
+                        </a>
+                        <a href="" class="btn btn-secondary mx-auto create-task" data-board-id="${board.id}"
+                            data-toggle="modal" data-target="#template-modal">
+                           <i class="fas fa-plus-circle"></i>
+                           New task
+                        </a>
+                        <a href="" class="float-right delete-board" data-board-id="${board.id}"
+                        data-board-title="${board.title}">
+                            <i class="far fa-trash-alt fa-lg"></i>
+                        </a>
+                    </div>
+                    <div class="collapse" id="collapse-board-${board.id}"></div>
                 </div>
-                <div class="collapse" id="collapse-board-${board.id}"></div>
-            </div>
-        </div>`;
+            </div>`;
         } else if (board.user_id === userIntegerId) {
             board_template = `
-        <div class="card mb-2">
-            <div class="card-body board-css-private" id="board-${board.id}">
-                <div class="row mb-2">
-                    <h5 class="card-title float-left" id="board-title-${board.id}" contenteditable="true" 
-                    onfocusout="updateBoardTitle(${board.id})">${board.title}</h5>
-                    <span>(private)</span>
-                    <a href="" class="mx-auto delete-board" data-board-id="${board.id}" 
-                    data-board-title="${board.title}">
-                        <i class="far fa-trash-alt fa-lg"></i>
-                    </a>
-                    <a href="" class="btn btn-info mx-auto create-status" data-board-id="${board.id}"
-                        data-toggle="modal" data-target="#template-modal">
-                       <i class="fas fa-plus-circle"></i>
-                       New status
-                    </a>
-                    <a href="" class="btn btn-secondary mx-auto create-task" data-board-id="${board.id}"
-                        data-toggle="modal" data-target="#template-modal">
-                       <i class="fas fa-plus-circle"></i>
-                       New task
-                    </a>
-                    <a class="float-right" data-toggle="collapse" href="#collapse-board-${board.id}" role="button" 
-                    aria-expanded="false" aria-controls="collapse-board">
-                        <i class="far fa-caret-square-down fa-2x"></i>
-                    </a>
+            <div class="card mb-2">
+                <div class="card-body board-css-private" id="board-${board.id}">
+                    <div class="row m-0">
+                        <h5 class="card-title mx-auto" id="board-title-${board.id}" contenteditable="true" 
+                        onfocusout="updateBoardTitle(${board.id})">
+                            ${board.title}
+                        </h5>
+                        <span>confidential</span>
+                    </div>
+                    <div class="row mb-2">
+                        <a class="float-left" data-toggle="collapse" href="#collapse-board-${board.id}" role="button" 
+                        aria-expanded="false" aria-controls="collapse-board">
+                            <i class="far fa-caret-square-down fa-2x"></i>
+                        </a>
+                        <a href="" class="btn btn-info mx-auto create-status" data-board-id="${board.id}"
+                            data-toggle="modal" data-target="#template-modal">
+                           <i class="fas fa-plus-circle"></i>
+                           New status
+                        </a>
+                        <a href="" class="btn btn-secondary mx-auto create-task" data-board-id="${board.id}"
+                            data-toggle="modal" data-target="#template-modal">
+                           <i class="fas fa-plus-circle"></i>
+                           New task
+                        </a>
+                        <a href="" class="float-right delete-board" data-board-id="${board.id}"
+                        data-board-title="${board.title}">
+                            <i class="far fa-trash-alt fa-lg"></i>
+                        </a>
+                    </div>
+                    <div class="collapse" id="collapse-board-${board.id}"></div>
                 </div>
-                <div class="collapse" id="collapse-board-${board.id}"></div>
-            </div>
-        </div>`;
+            </div>`;
         } else {
             continue;
         }
