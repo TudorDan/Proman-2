@@ -99,13 +99,6 @@ def create_task():
     return jsonify({'success': True})
 
 
-@app.route('/api/drag-update-task', methods=['POST'])
-def drag_update_task():
-    request_content = request.json
-    boards_manager.drag_update_task(request_content['task_id'], request_content['status_id'])
-    return jsonify({'success': True})
-
-
 @app.route('/registration', methods=['GET', 'POST'])
 def register_user():
     user_ok = True
@@ -132,7 +125,7 @@ def login():
         password = request.form['password']
 
         user_data = boards_manager.get_user_data_by_username(username)
-        print(user_data['name'])
+
         if user_data is None or boards_manager.verify_password(password, user_data['password']) is False:
             user_ok = False
         else:
@@ -150,6 +143,22 @@ def logout():
     return redirect(url_for('index'))
 
 
+# receives (id)
+# returns json
+@app.route('/api/delete-board', methods=['POST'])
+def delete_board():
+    request_content = request.json
+    boards_manager.delete_board(request_content['board_id'])
+    return jsonify({'success': True})
+
+
+@app.route('/api/drag-drop-update-task', methods=['POST'])
+def drag_update_task():
+    request_content = request.json
+    boards_manager.drag_drop_update_task(request_content['id'], request_content['status_id'], request_content['rank'])
+    return jsonify({'success': True})
+
+
 @app.route('/api/getdata')
 def get_data():
     data = [
@@ -159,15 +168,6 @@ def get_data():
     ]
 
     return jsonify(data)
-
-
-# receives (id)
-# returns json
-@app.route('/api/delete-board', methods=['POST'])
-def delete_board():
-    request_content = request.json()
-    boards_manager.delete_board(request_content['id'])
-    return jsonify({'success': True})
 
 
 # receives (id)

@@ -82,3 +82,7 @@ body {
 .board-css-private {
     background-color: #D4DCA9;
 }
+
+.fa-trash-alt {
+    color: #585A56;
+}

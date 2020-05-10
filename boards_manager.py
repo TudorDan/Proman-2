@@ -5,8 +5,8 @@ import bcrypt
 @db.use
 def get_boards(cursor):
     query = """
-        SELECT *
-        FROM boards ORDER BY id DESC;
+        SELECT * FROM boards 
+        ORDER BY id DESC;
     """
     cursor.execute(query)
     return cursor.fetchall()
@@ -15,8 +15,8 @@ def get_boards(cursor):
 @db.use
 def get_statuses(cursor):
     query = """
-        SELECT *
-        FROM statuses ORDER BY board_id, position;
+        SELECT * FROM statuses 
+        ORDER BY board_id, position;
     """
     cursor.execute(query)
     return cursor.fetchall()
@@ -25,7 +25,7 @@ def get_statuses(cursor):
 @db.use
 def get_tasks(cursor):
     query = """
-        SELECT * FROM tasks
+        SELECT * FROM tasks 
         ORDER BY status_id, rank;
     """
     cursor.execute(query)
@@ -35,7 +35,8 @@ def get_tasks(cursor):
 @db.use
 def create_board(cursor, title, user_id):
     query = """
-        INSERT INTO boards (title, user_id) VALUES (%(title)s, %(user_id)s);
+        INSERT INTO boards (title, user_id) 
+        VALUES (%(title)s, %(user_id)s);
     """
     cursor.execute(query, {
         'title': title,
@@ -43,8 +44,9 @@ def create_board(cursor, title, user_id):
     })
     # get the board_id the database created
     query = """
-        SELECT * FROM boards
-        WHERE title = %(title)s ORDER BY id DESC;
+        SELECT * FROM boards 
+        WHERE title = %(title)s 
+        ORDER BY id DESC;
     """
     cursor.execute(query, {
         'title': title
@@ -61,16 +63,18 @@ def create_board(cursor, title, user_id):
 def create_status(cursor, data):
     # get the last status position
     query = """
-            SELECT * FROM statuses
-            WHERE board_id = %(board_id)s ORDER BY position DESC;
-        """
+        SELECT * FROM statuses
+        WHERE board_id = %(board_id)s 
+        ORDER BY position DESC;
+    """
     cursor.execute(query, {
         'board_id': data['board_id']
     })
     position = cursor.fetchone()['position'] + 100
 
     query = """
-        INSERT INTO statuses (title, position, board_id) VALUES (%(title)s, %(position)s, %(board_id)s);
+        INSERT INTO statuses (title, position, board_id) 
+        VALUES (%(title)s, %(position)s, %(board_id)s);
     """
     return cursor.execute(query, {
         'title': data['title'],
@@ -83,8 +87,10 @@ def create_status(cursor, data):
 def create_task(cursor, data):
     # get the first status position
     query = """
-            SELECT * FROM statuses WHERE board_id = %(board_id)s ORDER BY position;
-        """
+        SELECT * FROM statuses 
+        WHERE board_id = %(board_id)s 
+        ORDER BY position;
+    """
     cursor.execute(query, {
         'board_id': data['board_id']
     })
@@ -92,8 +98,10 @@ def create_task(cursor, data):
 
     # get the last rank for the tasks from the status_id
     query = """
-                SELECT * FROM tasks WHERE status_id = %(status_id)s ORDER BY rank DESC;
-            """
+        SELECT * FROM tasks 
+        WHERE status_id = %(status_id)s 
+        ORDER BY rank DESC;
+    """
     cursor.execute(query, {
         'status_id': status_id
     })
@@ -104,7 +112,8 @@ def create_task(cursor, data):
         rank = temp['rank'] + 100
 
     query = """
-        INSERT INTO tasks (title, rank, status_id) VALUES (%(title)s, %(rank)s, %(status_id)s);
+        INSERT INTO tasks (title, rank, status_id) 
+        VALUES (%(title)s, %(rank)s, %(status_id)s);
     """
     return cursor.execute(query, {
         'title': data['title'],
@@ -116,7 +125,9 @@ def create_task(cursor, data):
 @db.use
 def update_board(cursor, data):
     query = """
-        UPDATE boards SET title = %(title)s WHERE id = %(id)s;
+        UPDATE boards 
+        SET title = %(title)s 
+        WHERE id = %(id)s;
     """
     return cursor.execute(query, {
         'id': data['id'],
@@ -127,7 +138,9 @@ def update_board(cursor, data):
 @db.use
 def update_status(cursor, data):
     query = """
-        UPDATE statuses SET title = %(title)s WHERE id = %(id)s;
+        UPDATE statuses 
+        SET title = %(title)s 
+        WHERE id = %(id)s;
     """
     return cursor.execute(query, {
         'id': data['id'],
@@ -138,7 +151,9 @@ def update_status(cursor, data):
 @db.use
 def update_task(cursor, data):
     query = """
-        UPDATE tasks SET title = %(title)s WHERE id = %(id)s;
+        UPDATE tasks 
+        SET title = %(title)s 
+        WHERE id = %(id)s;
     """
     return cursor.execute(query, {
         'id': data['id'],
@@ -147,11 +162,13 @@ def update_task(cursor, data):
 
 
 @db.use
-def drag_update_task(cursor, task_id, status_id):
+def drag_drop_update_task(cursor, task_id, status_id, rank):
     query = """
-        UPDATE tasks SET status_id = %(status_id)s WHERE id = %(task_id)s;
+        UPDATE tasks 
+        SET status_id = %(status_id)s, rank = %(rank)s 
+        WHERE id = %(task_id)s;
     """
-    return cursor.execute(query, {'status_id': status_id, 'task_id': task_id})
+    return cursor.execute(query, {'task_id': task_id, 'status_id': status_id, 'rank': rank})
 
 
 def hash_password(plain_text_password):
@@ -167,7 +184,10 @@ def verify_password(plain_text_password, hashed_password):
 
 @db.use
 def check_user(cursor, username):
-    query = """SELECT * FROM users WHERE name = %(username)s;"""
+    query = """
+        SELECT * FROM users 
+        WHERE name = %(username)s;
+    """
     cursor.execute(query, {'username': username})
     result = cursor.fetchone()
     if result is None:
@@ -177,21 +197,42 @@ def check_user(cursor, username):
 
 @db.use
 def add_new_user(cursor, username, password):
-    query = """INSERT INTO users (name, password) VALUES(%(username)s, %(password)s);"""
+    query = """
+        INSERT INTO users (name, password) 
+        VALUES(%(username)s, %(password)s);
+    """
     cursor.execute(query, {'username': username, 'password': password})
 
 
 @db.use
 def get_user_data_by_username(cursor, username):
-    query = """SELECT * FROM users WHERE name = %(username)s;"""
+    query = """
+        SELECT * FROM users 
+        WHERE name = %(username)s;
+    """
     cursor.execute(query, {'username': username})
     return cursor.fetchone()
 
 
 @db.use
 def delete_board(cursor, board_id):
+    # firstly, delete tasks from board
     query = """
-        DELETE FROM boards WHERE id = %(board_id)s
+        DELETE FROM tasks 
+        USING statuses 
+        WHERE tasks.status_id = statuses.id AND statuses.board_id = %(board_id)s;
     """
-    # delete cards
-    return cursor.execute(query, {'board_id': board_id})
+    cursor.execute(query, {'board_id': board_id})
+
+    # secondly, delete statuses from board
+    query = """
+        DELETE FROM statuses 
+        WHERE board_id = %(board_id)s;
+    """
+    cursor.execute(query, {'board_id': board_id})
+
+    query = """
+        DELETE FROM boards
+        WHERE id = %(board_id)s;
+    """
+    cursor.execute(query, {'board_id': board_id})

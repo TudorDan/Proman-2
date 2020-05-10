@@ -2,7 +2,7 @@
 
 {% block head %}
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/dragula.min.css') }}">
-    <script src="{{ url_for('static', filename='js/dragula.min.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/dragula.js') }}" defer></script>
     <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
 {% endblock %}
 
@@ -104,4 +104,22 @@
         </div>
     </div>
     <!--  End MODAL  -->
+    <!-- Modal Confirm -->
+    <div class="modal fade" id="delete-modal" tabindex="-1" role="dialog" aria-labelledby="templateModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="delete-modal-title"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger mx-auto" id="delete-button">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--  End MODAL Confirm -->
 {% endblock %}

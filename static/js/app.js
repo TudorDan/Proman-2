@@ -5,6 +5,7 @@ const url_tasks = url_api + "get-tasks";
 const url_create_board = url_api + "create-board";
 const url_create_status = url_api + "create-status";
 const url_create_task = url_api + "create-task";
+const url_delete_board = url_api + "delete-board";
 
 async function getBoards() {
     let serverResponse = await fetch(url_boards);
@@ -41,6 +42,10 @@ async function showBoards(boards) {
                 <div class="row mb-2">
                     <h5 class="card-title float-left" id="board-title-${board.id}" contenteditable="true" 
                     onfocusout="updateBoardTitle(${board.id})">${board.title}</h5>
+                    <a href="" class="mx-auto delete-board" data-board-id="${board.id}"
+                    data-board-title="${board.title}">
+                        <i class="far fa-trash-alt fa-lg"></i>
+                    </a>
                     <a href="" class="btn btn-info mx-auto create-status" data-board-id="${board.id}"
                         data-toggle="modal" data-target="#template-modal">
                        <i class="fas fa-plus-circle"></i>
@@ -67,6 +72,10 @@ async function showBoards(boards) {
                     <h5 class="card-title float-left" id="board-title-${board.id}" contenteditable="true" 
                     onfocusout="updateBoardTitle(${board.id})">${board.title}</h5>
                     <span>(private)</span>
+                    <a href="" class="mx-auto delete-board" data-board-id="${board.id}" 
+                    data-board-title="${board.title}">
+                        <i class="far fa-trash-alt fa-lg"></i>
+                    </a>
                     <a href="" class="btn btn-info mx-auto create-status" data-board-id="${board.id}"
                         data-toggle="modal" data-target="#template-modal">
                        <i class="fas fa-plus-circle"></i>
@@ -101,46 +110,32 @@ function addDragula() {
 async function showStatuses(statuses) {
     for (let status of statuses) {
         let board = document.querySelector(`#collapse-board-${status.board_id}`);
-        let statusTemplate = `
-        <div class="float-left card border border-secondary status-css mb-2" id="statuss-${status.id}">
-            <h5 id="status-title-${status.id}" contenteditable="true" class="mx-auto"
-            onfocusout="updateStatusTitle(${status.id})">
-                ${status.title}
-            </h5>
-        </div>`;
-        // let statusTemplate = `
-        // <div class="collapse" id="collapse-board-${status.board_id}">
-        //     <div class="float-left card border border-secondary status-css mb-2" id="status-${status.id}"
-        //      ondrop="drop(event)" ondragover="allowDrop(event)">
-        //         <h5 id="status-title-${status.id}" contenteditable="true" class="mx-auto"
-        //         onfocusout="updateStatusTitle(${status.id})" ondrop="preventDrop(event)">
-        //             ${status.title}
-        //         </h5>
-        //     </div>
-        // </div>`;
-        board.innerHTML += statusTemplate;
+        if (board !== null) {
+            let statusTemplate = `
+            <div class="float-left card border border-secondary status-css mb-2" id="statuss-${status.id}">
+                <h5 id="status-title-${status.id}" contenteditable="true" class="mx-auto"
+                onfocusout="updateStatusTitle(${status.id})">
+                    ${status.title}
+                </h5>
+            </div>`;
+            board.innerHTML += statusTemplate;
+        }
     }
 }
 
 async function showTasks(tasks) {
     for (let task of tasks) {
         let status = document.querySelector(`#statuss-${task.status_id}`);
-        let taskTemplate = `
-        <div id="task-${task.id}" class="border border-secondary task-css mb-2">
-            <h5 id="task-title-${task.id}" contenteditable="true" onfocusout="updateTaskTitle(${task.id})" 
-            class="mx-auto">
-                ${task.title}
-            </h5>
-        </div>`;
-        // let taskTemplate = `
-        // <div id="task-${task.id}" class="border border-secondary task-css mb-2" draggable="true"
-        // ondragstart="drag(event)" ondrop="preventDrop(event)">
-        //     <h5 id="task-title-${task.id}" contenteditable="true" onfocusout="updateTaskTitle(${task.id})"
-        //     class="mx-auto">
-        //         ${task.title}
-        //     </h5>
-        // </div>`;
-        status.innerHTML += taskTemplate;
+        if (status !== null) {
+            let taskTemplate = `
+            <div id="taskk-${task.id}" class="border border-secondary task-css mb-2">
+                <h5 id="task-title-${task.id}" contenteditable="true" onfocusout="updateTaskTitle(${task.id})" 
+                class="mx-auto">
+                    ${task.title}
+                </h5>
+            </div>`;
+            status.innerHTML += taskTemplate;
+        }
     }
 }
 
@@ -261,7 +256,6 @@ async function makeNewPrivateBoard(event) {
 
 async function processNewPrivateBoard(event) {
     const userId = obtainUserId();
-
     let boardTitle = document.querySelector('[name="modal-data"]').value;
     if (boardTitle) {
         let dataToBePosted = {
@@ -339,7 +333,7 @@ async function createNewTask() {
 
 async function processNewTask() {
     let taskTitle = document.querySelector('[name="modal-data"]').value;
-    const boardId = event.target.boardId;
+    const boardId = this.boardId;
     if (taskTitle) {
         let dataToBePosted = {
             title: taskTitle,
@@ -364,42 +358,6 @@ async function processNewTask() {
     }
 }
 
-// function allowDrop(ev) {
-//     ev.preventDefault();
-// }
-
-// function drag(ev) {
-//     ev.dataTransfer.setData("text", ev.target.id);
-// }
-
-// async function drop(ev) {
-//     ev.preventDefault();
-//     const data = ev.dataTransfer.getData("text");
-//
-//     ev.target.appendChild(document.getElementById(data));
-//     const taskId = data.replace('task-', '');
-//     const statusId = ev.target.id.replace('status-', '');
-//
-//     let dataToBePosted = {
-//             task_id: taskId,
-//             status_id: statusId
-//         };
-//     let serverResponse = await fetch(url_drag_update_task, {
-//         method: 'POST',
-//         headers: {
-//             'Content-Type': 'application/json',
-//             'Accept': 'application/json'
-//         },
-//         body: JSON.stringify(dataToBePosted)
-//     });
-//     let jsonResponse = await serverResponse.json();
-//     console.log(jsonResponse['success']);
-// }
-
-// function preventDrop(ev) {
-//     ev.stopPropagation();
-// }
-
 function obtainUserId() {
     const userLoggedIn = document.querySelector('#user-logged-in');
     if (userLoggedIn.innerText.startsWith('Signed in as')) {
@@ -407,6 +365,35 @@ function obtainUserId() {
     } else {
         return null;
     }
+}
+
+function deleteBoard(event) {
+    event.preventDefault();
+    const boardName = this.dataset.boardTitle;
+    let modalTitle = document.querySelector('#delete-modal-title');
+    modalTitle.innerHTML = `Are you sure you want to delete <strong>${boardName}</strong>?`;
+    $('#delete-modal').modal('show');
+    const deleteButton = document.querySelector('#delete-button');
+    deleteButton.boardNumber = this.dataset.boardId;
+    deleteButton.addEventListener('click', processDeleteBoard);
+}
+
+async function processDeleteBoard(event) {
+    const boardId = this.boardNumber;
+    let dataToBePosted = {
+        board_id: boardId
+    };
+    let serverResponse = await fetch(url_delete_board, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify(dataToBePosted)
+    });
+    let jsonResponse = await serverResponse.json();
+    console.log(jsonResponse['success']);
+    window.location.reload();
 }
 
 async function init() {
@@ -427,10 +414,18 @@ async function init() {
         await button.addEventListener('click', createNewTask);
     }
 
-    addDragula();
+    await addDragula();
 
-    const privateBoardButton = document.querySelector('#make-private-board');
-    await privateBoardButton.addEventListener('click', makeNewPrivateBoard);
+    const loggedIn = document.querySelector('#user-logged-in');
+    if (loggedIn.innerText.startsWith('Signed in as')) {
+        const privateBoardButton = document.querySelector('#make-private-board');
+        await privateBoardButton.addEventListener('click', makeNewPrivateBoard);
+    }
+
+    const deleteBoardButtons = document.querySelectorAll('.delete-board');
+    for (let button of deleteBoardButtons) {
+        await button.addEventListener('click', deleteBoard);
+    }
 }
 
 init();
