@@ -112,13 +112,14 @@ def create_task(cursor, data):
         rank = temp['rank'] + 100
 
     query = """
-        INSERT INTO tasks (title, rank, status_id) 
-        VALUES (%(title)s, %(rank)s, %(status_id)s);
+        INSERT INTO tasks (title, rank, status_id, archived) 
+        VALUES (%(title)s, %(rank)s, %(status_id)s, %(archived)s);
     """
     return cursor.execute(query, {
         'title': data['title'],
         'rank': rank,
-        'status_id': status_id
+        'status_id': status_id,
+        'archived': False
     })
 
 
